@@ -1,5 +1,7 @@
 from flask import Flask, request, jsonify
 import requests
+import asyncio
+from asyncio import coroutines
 import simplejson
 from flask import Response, Request
 import collections
@@ -52,6 +54,16 @@ def reconcile_with_other_servers(item_key, item_value):
     r = requests.post("http://127.0.0.1:5451/setCacheItem", headers=headers,
                       json=input_dict)
     return r.status_code
+
+
+@app.route('/updateCacheItem', methods=['PUT'])
+@asyncio.coroutine
+def update_cache_item():
+    content = request.json
+    item_key = content['item_key']
+    item_value = content['item_value']
+    cache[item_key] = item_value
+    return jsonify({item_key: item_value})
 
 
 if __name__ == '__main__':

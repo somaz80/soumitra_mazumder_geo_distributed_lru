@@ -41,18 +41,36 @@ def set_cache_item():
     item_key = content['item_key']
     item_value = content['item_value']
     cache[item_key] = item_value
-    reconcile_with_other_servers(item_key, item_value)
+    broadcast_update(item_key, item_value)
+    return jsonify({item_key: item_value})
+
+
+@app.route('/setCacheItem', methods=['POST'])
+def set_cache_item():
+    content = request.json
+    item_key = content['item_key']
+    item_value = content['item_value']
+    cache[item_key] = item_value
+    broadcast_update(item_key, item_value)
     return jsonify({item_key: item_value})
 
 
 # def invoke_cache_update():
-def reconcile_with_other_servers(item_key, item_value):
+def broadcast_update(item_key, item_value):
     input_dict = {'item_key': item_key, 'item_value': item_value}
     headers = {'Content-type': 'application/json', 'relay-update': False}
-    r = requests.post("http://127.0.0.1:5451/setCacheItem", headers=headers,
+    r = requests.post("http://127.0.0.1:5454/updateCaches", headers=headers,
                       json=input_dict)
     return r.status_code
 
+
+@app.route('/updateCacheItem', methods=['PUT'])
+def update_cache_item():
+    content = request.json
+    item_key = content['item_key']
+    item_value = content['item_value']
+    cache[item_key] = item_value
+    return jsonify({item_key: item_value})
 
 if __name__ == '__main__':
     app.run(host='127.0.0.1', port=5452, debug=True)
