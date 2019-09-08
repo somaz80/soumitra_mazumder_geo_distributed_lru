@@ -37,10 +37,12 @@ class Receiver:
             print(sys.stderr, 'received %s bytes from %s' % (len(data), address))
             print(sys.stderr, data)
             headers = {'Content-type': 'application/json'}
-            # for the time being for testing using 127 IP. normally it should work with self.host_ip or hostname as well
-            # TODO: we have to check that if the receiver is running in the same box where the update of the
-            #  cache has happend at first, if so then we might not want to call the update again on the same cache
-            # due to machine and  evironment restriction i can not perform this task.
+            """
+            for the time being for testing using 127 IP. normally it should work with self.host_ip or hostname as well
+            TODO: we have to check that if the receiver is running in the same box where the update of the
+            cache has happened at first, if so then we might not want to call the update again on the same cache
+            due to machine and  environment restriction i can not perform this task.
+            """
             try:
                 response = requests.put(f'http://127.0.0.1:{self.cache_server_port}/updateCacheItem', json=json.loads(data),
                                  headers=headers)
@@ -48,9 +50,11 @@ class Receiver:
                 sock.sendto('ack'.encode(), address)
             except Error:
                 print('Receiver program failed to execute update on the server')
-                #TODO: if update results in error then we might have to queue the request in the queue and  then
-                # try to ping the server program for availability and  once it is available we might want to execute
-                # requests. For the time being just sending back the acknowledgement
+                """
+                TODO: if update results in error then we might have to queue the request in the queue and  then
+                try to ping the server program for availability and  once it is available we might want to execute
+                requests. For the time being just sending back the acknowledgement
+                """
                 sock.sendto('ack'.encode(), address)
 
 
