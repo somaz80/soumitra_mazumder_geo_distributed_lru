@@ -1,0 +1,60 @@
+import json
+import socket
+import struct
+import sys
+
+import requests
+
+
+class Receiver:
+
+    def __init__(self, multicast_group_ip, multicast_server_port, cache_server_port):
+        self.multicast_group = multicast_group_ip
+        self.server_address = ('', multicast_server_port)
+        self.cache_server_port = cache_server_port
+        self.host_name = socket.gethostname()
+        self.host_ip = socket.gethostbyname(self.host_name)
+
+    # retuns back a socket for interaction on a multicast host
+    def get_reciver_socket(self):
+        # Create the socket
+        sock = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
+
+        # Bind to the server address
+        sock.bind(self.server_address)
+
+        group = socket.inet_aton(self.multicast_group)
+        mreq = struct.pack('4sL', group, socket.INADDR_ANY)
+        sock.setsockopt(socket.IPPROTO_IP, socket.IP_ADD_MEMBERSHIP, mreq)
+        return sock
+
+    def listen_incoming_request_send_update_to_cache(self, sock):
+        # Receive/respond loop
+        while True:
+            print(sys.stderr, 'waiting to receive message')
+            data, address = sock.recvfrom(1024)
+
+            print(sys.stderr, 'received %s bytes from %s' % (len(data), address))
+            print(sys.stderr, data)
+            headers = {'Content-type': 'application/json'}
+            # for the time being for testing using 127 IP. normally it should work with self.host_ip or hostname as well
+            # TODO: we have to check that if the receiver is running in the same box where the update of the
+            #  cache has happend at first, if so then we might not want to call the update again on the same cache
+            # due to machine and  evironment restriction i can not perform this task.
+            try:
+                response = requests.put(f'http://127.0.0.1:{self.cache_server_port}/updateCacheItem', json=json.loads(data),
+                                 headers=headers)
+                print(sys.stderr, 'sending acknowledgement to', address)
+                sock.sendto('ack'.encode(), address)
+            except Error:
+                print('Receiver program failed to execute update on the server')
+                #TODO: if update results in error then we might have to queue the request in the queue and  then
+                # try to ping the server program for availability and  once it is available we might want to execute
+                # requests. For the time being just sending back the acknowledgement
+                sock.sendto('ack'.encode(), address)
+
+
+if __name__ == '__main__':
+    rec = Receiver('224.3.29.71', 10000, 5453)
+    sock = rec.get_reciver_socket()
+    rec.listen_incoming_request_send_update_to_cache(sock)
