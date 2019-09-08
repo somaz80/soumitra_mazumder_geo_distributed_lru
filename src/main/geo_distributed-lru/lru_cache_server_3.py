@@ -1,13 +1,8 @@
-from flask import Flask, request, jsonify
-import requests
 import asyncio
-from asyncio import coroutines
-import simplejson
-from flask import Response, Request
 import collections
-import os
-import glob
-import json
+
+import requests
+from flask import Flask, request, jsonify
 
 cache = collections.OrderedDict()
 servers = []
@@ -19,6 +14,7 @@ app = Flask('Server_1')
 def set_up(app):
     servers.append(['127.0.0.1', 5452])
     servers.append(['127.0.0.1', 5453])
+    servers.append(['127.0.0.1', 5451])
     back_up_timer_server.append(['127.0.0.1', 5456])
 
 

@@ -5,6 +5,7 @@ import socket
 import struct
 import json
 import sys
+import asyncio
 from flask import Flask, request, jsonify
 
 cache = {}
@@ -13,31 +14,6 @@ back_up_timer_server = []
 sync_server = []
 
 app = Flask('Server_1')
-
-def multicast_receiver():
-
-    multicast_group = '224.3.29.71'
-    server_address = ('', 10000)
-
-    # Create the socket
-    sock = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
-
-    # Bind to the server address
-    sock.bind(server_address)
-    group = socket.inet_aton(multicast_group)
-    mreq = struct.pack('4sL', group, socket.INADDR_ANY)
-    sock.setsockopt(socket.IPPROTO_IP, socket.IP_ADD_MEMBERSHIP, mreq)
-    # Receive/respond loop
-    while True:
-        print(sys.stderr, 'waiting to receive message')
-        data, address = sock.recvfrom(1024)
-
-        print(sys.stderr, 'received %s bytes from %s' % (len(data), address))
-        print(sys.stderr, data)
-
-        print(sys.stderr, 'sending acknowledgement to', address)
-        sock.sendto('ack'.encode(), address)
-        update_cache_items(data)
 
 
 def update_cache_items(message):
@@ -50,7 +26,7 @@ def set_up(app):
     servers.append(['127.0.0.1', 5453])
     back_up_timer_server.append(['127.0.0.1', 5456])
     sync_server.append(['127.0.0.1', 5454])
-    #multicast_receiver()
+
 
 
 set_up(app)
@@ -89,7 +65,6 @@ def broadcast_update(item_key, item_value):
 
 
 def multicast_sender():
-
     multicast_group = ('224.3.29.71', 10000)
 
     # Create the datagram socket
@@ -126,7 +101,6 @@ def multicast_sender():
         sock.close()
 
 
-
 @app.route('/updateCacheItem', methods=['PUT'])
 def update_cache_item():
     content = request.json
@@ -136,7 +110,5 @@ def update_cache_item():
     return jsonify({item_key: item_value})
 
 
-
-
 if __name__ == '__main__':
-    app.run(host='127.0.0.1', port=5452, debug=True)
+    app.run(host='127.0.0.1', port=5453, debug=True)
