@@ -15,6 +15,13 @@ class CacheNode:
         self._expired = False
 
     '''
+     returns the  json representation of the node
+    '''
+    def get_node_as_json(self):
+        return {'key': self.key, 'data': self.data, 'expires_at': self.expires_at}
+
+
+    '''
      This function returns true if the node has expired 
     '''
 

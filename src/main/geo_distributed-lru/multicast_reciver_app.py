@@ -26,6 +26,9 @@ class Receiver:
         sock.setsockopt(socket.IPPROTO_IP, socket.IP_ADD_MEMBERSHIP, mreq)
         return sock
 
+    '''
+    this program keeps on running on background as receiver to listen to incoming update and forward
+    '''
     def listen_incoming_request_send_update_to_cache(self, sock):
         # Receive/respond loop
         while True:

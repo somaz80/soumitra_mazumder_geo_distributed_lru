@@ -11,7 +11,7 @@ cache = LRUCache(20, 20)
 app = Flask('Server_1')
 
 
-# def set_up(app):
+#def set_up(app):
 
 
 # set_up(app)
