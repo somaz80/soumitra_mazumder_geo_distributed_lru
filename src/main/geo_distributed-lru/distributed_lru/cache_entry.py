@@ -189,7 +189,6 @@ class DoublyLinkedList:
         else:
             a_node = self.start_node
             while a_node is not None:
-                print(" Node data found : ", a_node.key, a_node.data)
                 if a_node.key == key:
                     return True
                 a_node = a_node.next
