@@ -12,8 +12,6 @@ class Receiver:
         self.multicast_group = multicast_group_ip
         self.server_address = ('', multicast_server_port)
         self.cache_server_port = cache_server_port
-        self.host_name = socket.gethostname()
-        self.host_ip = socket.gethostbyname(self.host_name)
 
     # retuns back a socket for interaction on a multicast host
     def get_reciver_socket(self):
@@ -43,19 +41,18 @@ class Receiver:
             cache has happened at first, if so then we might not want to call the update again on the same cache
             due to machine and  environment restriction i can not perform this task.
             """
-            try:
-                response = requests.put(f'http://127.0.0.1:{self.cache_server_port}/updateCacheItem', json=json.loads(data),
-                                 headers=headers)
-                print(sys.stderr, 'sending acknowledgement to', address)
-                sock.sendto('ack'.encode(), address)
-            except Error:
-                print('Receiver program failed to execute update on the server')
-                """
-                TODO: if update results in error then we might have to queue the request in the queue and  then
-                try to ping the server program for availability and  once it is available we might want to execute
-                requests. For the time being just sending back the acknowledgement
-                """
-                sock.sendto('ack'.encode(), address)
+            response = requests.put(f'http://localhost:{self.cache_server_port}/updateCacheItem',
+                                    json=json.loads(data),
+                                    headers=headers)
+            print(sys.stderr, 'sending acknowledgement to', address)
+            sock.sendto('ack'.encode(), address)
+
+            print('Receiver program failed to execute update on the server')
+            """
+            TODO: if update results in error then we might have to queue the request in the queue and  then
+            try to ping the server program for availability and  once it is available we might want to execute
+            requests. For the time being just sending back the acknowledgement
+            """
 
 
 if __name__ == '__main__':
