@@ -96,7 +96,7 @@ class DoublyLinkedList:
         if self.start_node.key == key:
             self.start_node = self.start_node.next
             self.start_node.prev = None
-            return
+            return True
 
         a_node = self.start_node
         while a_node.next is not None:
@@ -106,9 +106,11 @@ class DoublyLinkedList:
         if a_node.next is not None:
             a_node.prev.next = a_node.next
             a_node.next.prev = a_node.prev
+            return True
         else:
             if a_node.key == key:
                 a_node.prev.next = None
+                return True
             else:
                 print("Cache Node not found")
 
@@ -146,6 +148,24 @@ class DoublyLinkedList:
                 a_node = a_node.next
 
     '''
+     traverse through the elements to get data as json
+    '''
+
+    def get_cache_data_list(self):
+        return_data_array = []
+        if self.start_node is None:
+            print("CacheList has no element")
+            return
+        else:
+            a_node = self.start_node
+            while a_node is not None:
+                return_data_array.append(a_node.get_node_as_json())
+                a_node = a_node.next
+        return return_data_array
+
+
+
+    '''
       remove the last element from list
     '''
 
@@ -156,7 +176,6 @@ class DoublyLinkedList:
         else:
             a_node = self.start_node
             while a_node is not None:
-                print(" Node data found : ", a_node.key, a_node.data)
                 if a_node.next is None:
                     a_node.prev.next = None
                     a_node.prev = None
@@ -179,7 +198,7 @@ class DoublyLinkedList:
                 print(" Node data found : ", a_node.key, a_node.data)
                 if a_node.key == key:
                     self.move_node_to_start_return_node_value(a_node)
-                    return a_node.key, a_node.data
+                    return a_node.key, a_node.data, a_node.expires_at
                 a_node = a_node.next
 
     '''

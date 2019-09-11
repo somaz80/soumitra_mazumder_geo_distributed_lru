@@ -5,8 +5,10 @@ import sys
 
 import requests
 
+from common_constants import CommonConstants
 
-class Receiver:
+
+class MulticastReceiver:
 
     def __init__(self, multicast_group_ip, multicast_server_port, cache_server_port):
         self.multicast_group = multicast_group_ip
@@ -33,7 +35,7 @@ class Receiver:
         # Receive/respond loop
         while True:
             print(sys.stderr, 'waiting to receive message')
-            data, address = sock.recvfrom(1024)
+            data, address = sock.recvfrom(CommonConstants.RECEIVER_SOCKET_BUFFER_SIZE)
 
             print(sys.stderr, 'received %s bytes from %s' % (len(data), address))
             print(sys.stderr, data)
@@ -59,6 +61,6 @@ class Receiver:
 
 
 if __name__ == '__main__':
-    rec = Receiver('224.3.29.71', 10000, 5454)
+    rec = MulticastReceiver(CommonConstants.MULTICAST_GROUP_IP, CommonConstants.MULTICAST_PORT_VALUE, 5454)
     sock = rec.get_reciver_socket()
     rec.listen_incoming_request_send_update_to_cache(sock)

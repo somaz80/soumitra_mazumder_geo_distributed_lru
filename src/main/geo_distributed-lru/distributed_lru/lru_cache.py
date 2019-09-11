@@ -12,8 +12,8 @@ class LRUCache:
 
     def get_element_from_cache(self, key):
         try:
-            key, value = self.cache.get_value_by_key(key)
-            return value
+            key, value, expires_at = self.cache.get_value_by_key(key)
+            return key, value, expires_at
         except KeyError:
             return -1
 

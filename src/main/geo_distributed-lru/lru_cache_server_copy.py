@@ -4,14 +4,15 @@ import struct
 
 from flask import Flask, request, jsonify
 
+from common_constants import CommonConstants
 from distributed_lru.lru_cache import LRUCache
 
-cache = LRUCache(20, 20)
+cache = LRUCache(CommonConstants.MAXIMUM_CACHE_ELEMENT_CAPACITY, CommonConstants.CACHE_EXPIRY_IN_SECONDS)
 
-app = Flask('Server_1')
+app = Flask('LRU_CACHE_SERVER_ONE')
 
 
-#def set_up(app):
+# def set_up(app):
 
 
 # set_up(app)
@@ -25,8 +26,8 @@ def get_heartbeat():
 @app.route('/getCacheItem', methods=['GET'])
 def get_cache_item():
     item_key = request.args['item_key']
-    item_value = cache.get_element_from_cache(item_key)
-    return jsonify({item_key: item_value})
+    key, value, expires_at = cache.get_element_from_cache(item_key)
+    return jsonify({'item_key': key, 'value': value, 'expires_at': expires_at})
 
 
 @app.route('/setCacheItem', methods=['POST'])
@@ -34,15 +35,15 @@ def set_cache_item():
     content = request.json
     item_key = content['item_key']
     item_value = content['item_value']
-    cache.set_element_in_cache(item_key, item_value, 20)
-    multicast_sender({'key': item_key, 'value': item_value, 'action': 'set'})
+    expires_at = content['expires_at']
+    cache.set_element_in_cache(item_key, item_value, expires_at)
+    multicast_sender({'key': item_key, 'value': item_value, 'expires_at': expires_at, 'action': 'set'})
     return jsonify({item_key: item_value})
 
 
 @app.route('/deleteCacheItem', methods=['DELETE'])
 def delete_cache_item():
-    content = request.json
-    item_key = content['item_key']
+    item_key = request.args['item_key']
     flag_value = cache.delete_item_from_cache(item_key)
     multicast_sender({'key': item_key, 'action': 'delete'})
     return jsonify({item_key: flag_value})
@@ -57,20 +58,25 @@ def delete_cache_item():
 #                       json=input_dict)
 #     return r.status_code
 
+'''
+    This function is responsible for sending out json message to the multicast group members
+'''
+
 
 def multicast_sender(data):
-    multicast_group = ('224.3.29.71', 10000)
+
+    multicast_group = (CommonConstants.MULTICAST_GROUP_IP, CommonConstants.MULTICAST_PORT_VALUE)
 
     # Create the datagram socket
     sock = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
 
     # Set a timeout so the socket does not block indefinitely when trying
     # to receive data.
-    sock.settimeout(0.2)
+    sock.settimeout(CommonConstants.SENDER_SOCKET_TIME_OUT)
 
     # Set the time-to-live for messages to 1 so they do not go past the
     # local network segment.
-    ttl = struct.pack('b', 1)
+    ttl = struct.pack('b', CommonConstants.TIME_TO_LIVE_FOR_MESSAGE)
     sock.setsockopt(socket.IPPROTO_IP, socket.IP_MULTICAST_TTL, ttl)
 
     try:
@@ -83,7 +89,7 @@ def multicast_sender(data):
         while True:
             print('waiting to receive')
             try:
-                data, server = sock.recvfrom(16)
+                data, server = sock.recvfrom(CommonConstants.SENDER_SOCKET_BUFFER_SIZE)
             except socket.timeout:
                 print('timed out, no more responses')
                 break
@@ -101,10 +107,11 @@ def update_cache_item():
     item_key = content['key']
     item_value = content['value']
     item_action = content['action']
+    expires_at = content['expires_at']
     if item_action is 'delete':
         cache.delete_item_from_cache(item_key)
     else:
-        cache.set_element_in_cache(item_key, item_value, 20)
+        cache.set_element_in_cache(item_key, item_value, expires_at)
     return jsonify({item_key: item_value})
 
 
