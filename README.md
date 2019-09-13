@@ -50,5 +50,26 @@ g) multicast_reciver app intercepts sender applications request and forwards it 
 localhost to cache server update url as mentioned in e)updateCacheItem. 
 
 <b>How to Run The Application:</b><br/>
+You can  run lru_cache_server as below <br/>
+app.run(host='127.0.0.1', port=5453, debug=True)<br/>
+It will start on the sender application as well.<br/>
+You also need to start MultiCastReceiver application as below<br/>
+    rec = MulticastReceiver(CommonConstants.MULTICAST_GROUP_IP, CommonConstants.MULTICAST_PORT_VALUE, 5454)<br/>
+    sock = rec.get_reciver_socket()<br/>
+    rec.listen_incoming_request_send_update_to_cache(sock)<br/>
+In order to test the application you have to also run another copy of lru_server as below <br/>
+    app.run(host='127.0.0.1', port=5454, debug=True)<br/>
+    
+After running the above commands you can start interacting with cache server as you need.<br/>
 
-
+<b>Functionanilites covered:</b><br/>
+    This application only demonstrates some one the required functionalities and is <br/>
+    under evolution. In the due course of time rest of the functionalities can be implemented.
+    <b>1 - Simplicity. Integration needs to be dead simple. <br/>
+    2 - Resilient to network failures or crashes. <br/>
+    3 - Near real time replication of data across Geolocation. Writes need to be in real time. <br/>
+    4 - Data consistency across regions <br/>
+    5 - Flexible Schema <br/><b>
+   Locality of refernce and cache expiry will be taken under future functionlities.<br/>
+   
+    
