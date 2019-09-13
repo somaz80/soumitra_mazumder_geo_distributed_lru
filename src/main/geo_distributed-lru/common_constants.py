@@ -17,3 +17,8 @@ class CommonConstants:
     CACHE_EXPIRY_IN_SECONDS = 20
 
     TIME_TO_LIVE_FOR_MESSAGE = 10
+
+    SERVER_ONE_PORT = 5253
+
+    SERVER_TWO_PORT = 5254
+
