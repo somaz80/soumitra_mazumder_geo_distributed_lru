@@ -28,3 +28,9 @@ c) /setCacheItem - set's the cache item value sample request type is as follows:
   "item_value":"sample5",</br>
   "expires_at":10</br>
 }</br>
+d) /deleteCacheItem - deletes as single item from cache. Request structure as follows </br>
+/deleteCacheItem?item_key=key3 </br>
+apart from the API's each server module contains a sender function that takes data as incoming request  </br>
+and forwards it to the multicast receiver application on specific multicast IP.
+
+
