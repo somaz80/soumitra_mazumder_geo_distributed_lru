@@ -46,6 +46,9 @@ Or if it is a delete case then
 }</br>
 f) apart from the API's each server module contains a sender function that takes data as incoming request  </br>
 and forwards it to the multicast receiver application on specific multicast IP.</br>
+g) multicast_reciver app intercepts sender applications request and forwards it on the </br>
+localhost to cache server update url as mentioned in e)updateCacheItem. 
 
+<b>How to Run The Application:</b><br/>
 
 
