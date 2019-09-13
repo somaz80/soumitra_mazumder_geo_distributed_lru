@@ -20,5 +20,5 @@ class CommonConstants:
 
     SERVER_ONE_PORT = 5253
 
-    SERVER_TWO_PORT = 5254
+    SERVER_TWO_PORT = 5454
 

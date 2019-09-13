@@ -31,6 +31,7 @@ class MulticastReceiver:
     '''
     this program keeps on running on background as receiver to listen to incoming update and forward
     '''
+
     def listen_incoming_request_send_update_to_cache(self, sock):
         # Receive/respond loop
         while True:
@@ -61,6 +62,7 @@ class MulticastReceiver:
 
 
 if __name__ == '__main__':
-    rec = MulticastReceiver(CommonConstants.MULTICAST_GROUP_IP, CommonConstants.MULTICAST_PORT_VALUE, CommonConstants.SERVER_TWO_PORT)
+    rec = MulticastReceiver(CommonConstants.MULTICAST_GROUP_IP, CommonConstants.MULTICAST_PORT_VALUE,
+                            CommonConstants.SERVER_TWO_PORT)
     sock = rec.get_reciver_socket()
     rec.listen_incoming_request_send_update_to_cache(sock)
